@@ -6,6 +6,7 @@ import (
 	"github.com/mxyns/go-tcp/filet"
 	gotcp "github.com/mxyns/go-tcp/filet/requests"
 	"github.com/mxyns/go-tcp/filet/requests/defaultRequests"
+	"github.com/mxyns/go-transfer/io"
 	"net"
 	"os"
 	"strings"
@@ -34,13 +35,14 @@ func startServer(address *string, proto *string, port *uint) {
 					textReq := (*pack.GetRequests()[1]).(*defaultRequests.TextRequest)
 
 					oldPath := fileReq.GetPath()
-					shards := strings.Split(oldPath,"/")
+					shards := strings.Split(oldPath, "/")
 					shards[len(shards)-1] = textReq.GetText()
 					newPath := strings.Join(shards, "/")
 
-					if err := os.Rename(oldPath, newPath); err != nil {
+					if err := io.MoveFile(oldPath, newPath); err != nil {
 						var resp gotcp.Request = defaultRequests.MakeTextRequest("ERR")
 						_, _, _ = gotcp.SendRequestOn(client, &resp)
+						fmt.Printf("Couldn't move file %v\n", err)
 						return
 					} else {
 						fmt.Printf("received => %v (%v bytes)\n", newPath, fileReq.GetFileSize())
