@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/mxyns/go-tcp/fileio"
 	"github.com/mxyns/go-transfer/io"
 	log "github.com/sirupsen/logrus"
 )
@@ -14,11 +15,14 @@ func main() {
 	address := flag.String("a", "127.0.0.1", "address to host on / connect to")
 	proto := flag.String("P", "tcp", "protocol")
 	port := flag.Uint("p", 8887, "port")
+	bufferSize := flag.Uint("b", 8192, "size of the io buffer to use")
 	timeout := flag.String("t", "10s", "client connection timeout")
 	debugLevel := flag.String("l", "panic", "debug level")
 	customFormatter := flag.Bool("f", true, "use custom formatter for network log")
 
 	flag.Parse()
+
+	fileio.MAX_FILE_BUFFER_SIZE = uint32(*bufferSize)
 
 	if *customFormatter {
 		log.SetFormatter(&io.Formatter{
